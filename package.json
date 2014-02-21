@@ -1,0 +1,11 @@
+{
+  "name": "jss",
+  "version": "0.0.0",
+  "description": "js variables into css",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Joe Minichino <joe.minichino@gmail.com> (http://github.com/techfort)",
+  "license": "ISC"
+}

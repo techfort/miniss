@@ -1,0 +1,12 @@
+body {
+  background: #fff;
+  color: #000;
+
+  
+border-radius: 10px;
+-moz-border-radius: 10px;
+
+  
+transition: width 1s;
+
+}
