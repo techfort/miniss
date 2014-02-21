@@ -2,11 +2,15 @@ body {
   background: #fff;
   color: #000;
 
-  
-border-radius: 10px;
--moz-border-radius: 10px;
+    border-radius: 10px;;
+  -moz-border-radius: 10px;;
+    transition: width 1s;;
+}
 
-  
-transition: width 1s;
-
+input {
+    border-radius: 1px;
+  -moz-border-radius: 1px;
+  -webkit-border-radius: 1px;
+  -o-border-radius: 1px;
+  -ms-border-radius: 1px;  
 }

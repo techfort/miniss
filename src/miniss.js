@@ -7,7 +7,8 @@ function miniss(config, css, out) {
     interpolation = {
       start: '__',
       end: '__',
-      mixin: '@@'
+      mixin: '@@',
+      builtinMixin: '@miniss-'
     };
 
   function log(msg) {
@@ -22,16 +23,28 @@ function miniss(config, css, out) {
 
   function cssize(json) {
     log('Rendering mixin to css');
-    var output = '\n',
+    var output = [],
       prop;
     for (prop in json) {
-      output += prop + ': ' + json[prop] + '\n';
+      log('cssize: ' + prop  + ': ' + json[prop]);
+      output.push('  ' + prop + ': ' + json[prop] + ';')
     }
     log('Output:');
-    log(output);
+    log(output.join('\n'));
     log('Mixin completed');
-    return output;
+    return output.join('\n');
   }
+
+  var mixins = {
+    cross: function (property, value) {
+      var declaration = property + ': ' + value + '',
+        extensions = ['', '-moz-', '-webkit-', '-o-', '-ms-'];
+      return extensions.map(function (item) {
+        return '  ' + item + declaration;
+      }).join('\n');
+    }
+  };
+
 
   this.setInterpolation = function (start, end, mixin) {
     interpolation.start = start;
@@ -49,6 +62,31 @@ function miniss(config, css, out) {
       if (err) {
         log(err);
         return;
+      }
+
+      function processBuiltInMixins(output) {
+        var pattern, regex, matchObj, match, args;
+        for (builtin in mixins) {
+          pattern = interpolation.builtinMixin + builtin;
+          regex = new RegExp(interpolation.builtinMixin + builtin + '\\s\\w+.*;', 'g');
+          matchObj = output.match(regex);
+          if (!matchObj) {
+            log('No pattern match on built in');
+            continue;
+          }
+          
+          match = matchObj.toString();
+          log('Builtin-match: ' + match);
+          args = match.replace(pattern, '')
+            .trim()
+            .split(',')
+            .map(function (item) {
+            return item.toString().trim();
+          });
+          log('Builtin args: ' + args);
+          log(mixins[builtin].apply(self, args));
+          return output.replace(match, mixins[builtin].apply(self, args));
+        }
       }
 
       var output = file, prop, args, pieces, pattern, matchObj, match, func, czz;
@@ -82,6 +120,8 @@ function miniss(config, css, out) {
           output = output.replace(match, czz);
         }
       }
+
+      output = processBuiltInMixins(output);
 
       fs.writeFile(out, output, function (err) {
         if (err) {

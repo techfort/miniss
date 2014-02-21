@@ -9,9 +9,10 @@ var style = {
       '-moz-border-radius': radius
     };
   },
-  transition: function (prop, value, ease) {
+  transition: function () {
+    var args = Array.prototype.splice.call(arguments, 0);
     return {
-      'transition': prop + ' ' + value + ' ' + ease
+      'transition': args.join(' ')
     };
   }
 };

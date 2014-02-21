@@ -3,6 +3,9 @@ body {
   color: __black__;
 
   @@borderRadius 10px;
-  @@transition width, 1s;
+  @@transition width,1s;
 }
 
+input {
+  @miniss-cross border-radius,1px;  
+}
