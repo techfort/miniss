@@ -33,9 +33,10 @@ function miniss(config, css, out) {
     return output;
   }
 
-  this.setInterpolation = function (start, end) {
+  this.setInterpolation = function (start, end, mixin) {
     interpolation.start = start;
     interpolation.end = end;
+    interpolation.mixin = mixin;
   };
 
   this.replace = function (input, property) {
@@ -59,17 +60,23 @@ function miniss(config, css, out) {
         
         if (typeof config[prop] === 'function') {
           log('Converting function: ' + prop);
-          pattern = new RegExp('@@' + prop + '\\s\\w+.*;', 'g');
+          pattern = new RegExp(interpolation.mixin + prop + '\\s\\w+.*;', 'g');
           matchObj = output.match(pattern);
           if (!matchObj) {
             log('No match found for ' + prop);
             continue;
           }
           match = matchObj.toString();
-          pieces = match.split(' ', 2);
-
-          func = match.replace('@@' + prop + ' ', ''); 
-          args = pieces[1].split(',');
+          
+          //args = ;
+          args = match.replace(interpolation.mixin + prop + ' ', '')
+            .trim()
+            .split(',')
+            .map(function (item) {
+            return item.toString().trim();
+          });
+          
+          //args = args;
           log('Mixin arguments: ' + args);
           czz = cssize(config[prop].apply(this, args));
           output = output.replace(match, czz);
@@ -80,7 +87,7 @@ function miniss(config, css, out) {
         if (err) {
           throw err;
         }
-        log('File ' + output + ' saved');
+        log('File ' + out + ' saved');
       });
 
     });

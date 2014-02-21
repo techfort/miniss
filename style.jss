@@ -3,5 +3,6 @@ body {
   color: __black__;
 
   @@borderRadius 10px;
-  @@transition width,1s;
+  @@transition width, 1s;
 }
+
