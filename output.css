@@ -1,16 +1,19 @@
-/* Generated with miniss on Fri, 21 Feb 2014 19:28:13 GMT */
+/* Generated with miniss on Sat, 22 Feb 2014 11:51:04 GMT */
 body {
   background: #fff;
   color: #000;
-  @@borderRadius 10px;
+  border-radius: 10px;
+  -moz-border-radius: 10px;
   transition: width 1s;
+  opacity: 0.7;
+  -moz-opacity: 0.7;
+  -webkit-opacity: 0.7;
+  -o-opacity: 0.7;
+  -ms-opacity: 0.7;
 }
 
-input {
-  @miniss-cross border-radius,1px;  
-}
 
-
-#textarea{
-  @@borderRadius 10px;
-}
+textarea{
+  transition: width 1s; border-radius: 10px;
+  -moz-border-radius: 10px;
+} 
