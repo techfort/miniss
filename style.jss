@@ -3,7 +3,7 @@ body {
   color: __black__;
   !=borderRadius 10px;
   !=transition width,1s;
-  !jss=cross opacity, 0.7;
+  !miniss=cross opacity, 0.7;
 }
 
-!jss=element textarea, !=transition width 1s; !=borderRadius 10px;
+!miniss=element textarea, !=transition width 1s; !=borderRadius 10px;
