@@ -1,6 +1,6 @@
 {
   "name": "miniss",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "js variables into css",
   "main": "src/miniss.js",
   "bin" : {
