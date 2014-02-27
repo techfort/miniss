@@ -1,0 +1,17 @@
+/* Generated with miniss on Tue, 25 Feb 2014 20:19:39 GMT */
+body {
+  background: #fff;
+  color: #000;
+  !=borderRadius 10px;
+  transition: width 1s;
+  opacity: 0.7;
+  -moz-opacity: 0.7;
+  -webkit-opacity: 0.7;
+  -o-opacity: 0.7;
+  -ms-opacity: 0.7;
+}
+
+
+textarea{
+  transition: width 1s; !=borderRadius 10px;
+}

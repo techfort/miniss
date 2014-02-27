@@ -1,0 +1,70 @@
+#!/usr/bin/env node
+
+'use strict';
+
+var path = require('path'),
+  fs = require('fs'),
+  lib = path.join(path.dirname(fs.realpathSync(__filename)), '../src'),
+  miniss = require(lib + '/miniss.js'),
+  index = 2,
+  debug = false,
+  interpolation,
+  settings,
+  watch = false;
+
+if (process.argv.length === 2) {
+  console.log(['miniss usage:',
+  'miniss [-d] [-s start,end,mixin,builtin] <input> <output> [<config>]',
+  '-d debug output',
+  '-s set interpolation delimiters: start (default __ ), end (default __ ), mixin (default != ), builtinMixin (default !miniss= ). Arguments are optional but must be entered in ordered. In other words to set interpolation parameter n you have to specify 0 to n',
+  '- input is a .jss file defining the structure to be parsed into css',
+  '- output.css is the destination file',
+  '- config file is a js file (default is minissfile.js)'].join('\n'));
+  return;
+}
+
+
+if (process.argv[index] === '-d') {
+  debug = true;
+  index += 1;
+}
+
+if (process.argv[index] === '-s') {
+  interpolation = process.argv[index + 1];
+  settings = interpolation.split(',');
+  index += 2;
+}
+
+if (process.argv[index] === '-w') {
+  watch = true;
+  index += 1;
+}
+
+var stylesheet = './' + process.argv[index], 
+  out = './' + process.argv[index + 1] || './style.css',
+  config = process.argv[index + 2] || './minissfile.js',
+  compiler,
+  configFile;
+  configFile = fs.realpathSync(config);
+
+console.log('Compiling ' + stylesheet + ', applying ' + config + ', output to ' + out);
+compiler = new miniss(stylesheet, out, configFile);
+compiler.setDebug(debug);
+compiler.setInterpolation.apply(compiler, settings);
+compiler.compile();
+
+if (watch) {
+  fs.watchFile(fs.realpathSync(stylesheet), function (err, file) {
+    console.log(stylesheet + ' changed, recompiling... ');
+    compiler = new miniss(stylesheet, out, configFile);
+    compiler.compile();
+    console.log('done.')
+  });
+
+  fs.watchFile(fs.realpathSync(configFile), function (err, file) {
+    console.log(configFile + ' changed, recompiling...');
+    compiler = new miniss(stylesheet, out, configFile);
+    compiler.compile();
+    console.log('done.');
+  });
+}
