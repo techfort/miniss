@@ -1,7 +1,7 @@
 var fs = require('fs');
 
 function miniss(css, out, configFile) {
-  
+
   var self = this,
     debug = false,
     interpolation = {
@@ -10,7 +10,7 @@ function miniss(css, out, configFile) {
       mixin: '!=',
       builtinMixin: '!miniss='
     },
-    configFile, out;
+    config;
 
   if (configFile) {
     config = require(configFile);
@@ -44,43 +44,44 @@ function miniss(css, out, configFile) {
   }
 
   this.mixins = {
-    element: function (property, value) {
+    element: function(property, value) {
       return '\n' + property + '{\n  ' + value + '\n}';
     },
-    cross: function (property, value) {
+    cross: function(property, value) {
       var declaration = property + ': ' + value + '',
-        extensions = ['', '-moz-', '-webkit-', '-o-', '-ms-'];
-      return extensions.map(function (item) {
+        extensions = ['-moz-', '-webkit-', '-o-', '-ms-', ''];
+      return extensions.map(function(item) {
         return item + declaration;
       }).join('\n  ');
     }
   };
 
-  this.setInterpolation = function () {
+  this.setInterpolation = function() {
     interpolation.start = arguments[0] || '__';
     interpolation.end = arguments[1] || '__';
     interpolation.mixin = arguments[2] || '!=';
     interpolation.builtinMixin = arguments[3] || '!miniss=';
   };
 
-  this.replace = function (input, property) {
+  this.replace = function(input, property) {
     return input.replace(new RegExp(selector(property), 'gi'), config[property]);
   };
 
   function processBuiltInMixins(processed) {
     var builtin, pattern, regex, matchObj, match, args;
 
+    function proc(element, index, array) {
+      match = element.toString();
+      args = processArguments(match, pattern);
+      processed = processed.replace(match, self.mixins[builtin].apply(self, args));
+    }
     for (builtin in self.mixins) {
       pattern = interpolation.builtinMixin + builtin;
       log('Processing ' + pattern + ' ...');
       regex = new RegExp(interpolation.builtinMixin + builtin + '\\s\\w+.*;', 'g');
       matchObj = processed.match(regex);
       if (matchObj) {
-        matchObj.forEach(function (element, index, array) {
-          match = element.toString();
-          args = processArguments(match, pattern);
-          processed = processed.replace(match, self.mixins[builtin].apply(self, args));
-        });
+        matchObj.forEach(proc);
       }
     }
     return processed;
@@ -90,50 +91,52 @@ function miniss(css, out, configFile) {
     var args = input.replace(pattern, '')
       .trim()
       .split(',')
-      .map(function (item) {
-      return item.toString().trim();
-    });
+      .map(function(item) {
+        return item.toString().trim();
+      });
     return args;
   }
 
-  this.setDebug = function (bDebug) {
+  this.setDebug = function(bDebug) {
     debug = bDebug;
   };
 
-  this.compile = function () {
-    fs.readFile(css, 'utf8', function (err, file) {
+  this.compile = function() {
+    fs.readFile(css, 'utf8', function(err, file) {
       if (err) {
         log(err);
         return;
       }
-      
+
       var output, prop, args, pieces, pattern, matchObj, match, func, czz, i, len;
       output = processBuiltInMixins(file);
       log('After builtin: ' + output);
+
+      function processmatch(element, index, array) {
+        match = element.toString();
+        args = processArguments(match, interpolation.mixin + prop + ' ');
+        output = output.replace(match, cssize(config[prop].apply(this, args)));
+      }
       for (prop in config) {
         if (typeof config[prop] === 'string') {
           log('Converting variable: ' + prop);
           output = self.replace(output, prop);
         }
-        
+
         if (typeof config[prop] === 'function') {
           log('Converting function: ' + prop);
           pattern = new RegExp(interpolation.mixin + prop + '\\s\\w+.*;', 'g');
           matchObj = output.match(pattern);
 
           if (matchObj) {
-            matchObj.forEach(function (element, index, array) {
-              match = element.toString();
-              args = processArguments(match, interpolation.mixin + prop + ' ');
-              output = output.replace(match, cssize(config[prop].apply(this, args)));
-            });
+            matchObj.forEach(processmatch);
           }
         }
       }
 
       output = '/* Generated with miniss on ' + new Date().toUTCString() + ' */\n' + output;
 
-      fs.writeFile(out, output, function (err) {
+      fs.writeFile(out, output, function(err) {
         if (err) {
           throw err;
         }
@@ -142,7 +145,7 @@ function miniss(css, out, configFile) {
 
     });
   };
-  
+
 }
 
 module.exports = miniss;
